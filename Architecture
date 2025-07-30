@@ -1,0 +1,99 @@
+🏗️ **Production Architecture – Offline RAG Chatbot**
+
+                 ┌──────────────────────────────┐
+                 │       🧑‍💻 User Interface      │
+                 │  (Streamlit / Gradio App)    │
+                 └────────────┬─────────────────┘
+                              │
+                              ▼
+        ┌───────────────────────────────────────────────┐
+        │               🔍 Query Handler                │
+        │ - Accepts user question                       │
+        │ - Encodes query using SentenceTransformer     │
+        └────────────┬──────────────────────────────────┘
+                     │
+                     ▼
+        ┌───────────────────────────────────────────────┐
+        │        🔗 Vector Store (Qdrant Local)          │
+        │ - Searches indexed document chunks             │
+        │ - Top-k retrieval using cosine similarity       │
+        │ - Returns chunk metadata: text, page, file     │
+        └────────────┬──────────────────────────────────┘
+                     │
+                     ▼
+        ┌───────────────────────────────────────────────┐
+        │              📦 Response Formatter             │
+        │ - Formats result with text + source + chunk ID │
+        │ - Handles fallback: “Not Found”                │
+        └────────────┬──────────────────────────────────┘
+                     │
+                     ▼
+        ┌───────────────────────────────────────────────┐
+        │             🌐 UI Renderer (Frontend)           │
+        │ - Displays responses & document metadata       │
+        │ - Stylish, responsive UI                       │
+        └───────────────────────────────────────────────┘
+```
+
+---
+
+### 🧰 **Background Processing Layer (One-time or Scheduled)**
+
+```text
+                       ⏱️ Scheduler / Manual Trigger
+                                │
+                                ▼
+    ┌───────────────────────────────────────────────────────────┐
+    │        📄 Document Processor (rag_chatbot.py)             │
+    │ - Loads PDF/DOCX from /data                               │
+    │ - Splits into text chunks (by page, 500–700 characters)   │
+    │ - Embeds each chunk using all-MiniLM-L6-v2                │
+    │ - Pushes vector + metadata into Qdrant                    │
+    └───────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🗃️ **Data Flow Overview**
+
+```mermaid
+graph TD
+A[PDF / DOCX Files] --> B[Document Loader]
+B --> C[Chunking & Metadata Tagging]
+C --> D[Sentence Embedding]
+D --> E[Qdrant Storage (Vectors + Payload)]
+
+U[User Input] --> Q[Query Embedding]
+Q --> S[Qdrant Search]
+S --> R[Top-k Matching Chunks]
+R --> F[UI Display with Metadata]
+```
+
+---
+
+### 🧱 Components & Stack
+
+| Layer             | Tool/Service              | Offline Ready |
+| ----------------- | ------------------------- | ------------- |
+| UI                | Streamlit / Gradio        | ✅             |
+| Embedding Model   | all-MiniLM-L6-v2 (sbert)  | ✅             |
+| Vector DB         | Qdrant (local binary)     | ✅             |
+| Preprocessing     | Python (pdfplumber, docx) | ✅             |
+| Hosting           | Local Machine / LAN       | ✅             |
+| Optional Scale-up | FastAPI + Docker          | ✅             |
+
+---
+
+### 📈 Future Production Enhancements
+
+| Feature                | Benefit                                     |
+| ---------------------- | ------------------------------------------- |
+| Dockerized Setup       | One-click deployment                        |
+| Admin Upload Portal    | Allow uploading new docs without CLI        |
+| Local LLM Integration  | Summarization / Question generation offline |
+| GPU Support (optional) | Faster embedding for large corpora          |
+| Logging/Analytics      | Monitor popular queries                     |
+| Role-based Access      | Secure internal use                         |
+
+---
+
