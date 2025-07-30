@@ -1,4 +1,4 @@
-🏗️ **Production Architecture – Offline RAG Chatbot**
+🏗️ Production Architecture – Offline RAG Chatbot
 
                  ┌──────────────────────────────┐
                  │       🧑‍💻 User Interface      │
@@ -35,9 +35,8 @@
         └───────────────────────────────────────────────┘
 
 
-🧰 **Background Processing Layer (One-time or Scheduled)**
+🧰 Background Processing Layer (One-time or Scheduled)
 
-```text
                        ⏱️ Scheduler / Manual Trigger
                                 │
                                 ▼
@@ -50,9 +49,8 @@
     └───────────────────────────────────────────────────────────┘
 
 
-🗃️ **Data Flow Overview**
+🗃️ Data Flow Overview
 
-```mermaid
 graph TD
 A[PDF / DOCX Files] --> B[Document Loader]
 B --> C[Chunking & Metadata Tagging]
