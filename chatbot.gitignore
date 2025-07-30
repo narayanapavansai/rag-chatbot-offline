@@ -1,5 +1,54 @@
-venv/
+# Python
 __pycache__/
-*.pyc
-*.log
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Jupyter / IPython
+.ipynb_checkpoints
+
+# System files
 .DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# Logs and outputs
+*.log
+*.out
+
+# OS generated files
+ehthumbs.db
+Desktop.ini
+
+# Streamlit config
+.streamlit/config.toml
+
+# Hugging Face models (if any downloaded)
+*.safetensors
+*.bin
+*.pt
+
+# Qdrant local storage
+qdrant_storage/
+
+# PDF/DOCX files used for indexing
+data/*.pdf
+data/*.docx
+
+# Cache and temp
+.cache/
+tmp/
