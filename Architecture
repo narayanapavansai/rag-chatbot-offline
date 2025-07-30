@@ -33,11 +33,9 @@
         │ - Displays responses & document metadata       │
         │ - Stylish, responsive UI                       │
         └───────────────────────────────────────────────┘
-```
 
----
 
-### 🧰 **Background Processing Layer (One-time or Scheduled)**
+🧰 **Background Processing Layer (One-time or Scheduled)**
 
 ```text
                        ⏱️ Scheduler / Manual Trigger
@@ -50,11 +48,9 @@
     │ - Embeds each chunk using all-MiniLM-L6-v2                │
     │ - Pushes vector + metadata into Qdrant                    │
     └───────────────────────────────────────────────────────────┘
-```
 
----
 
-### 🗃️ **Data Flow Overview**
+🗃️ **Data Flow Overview**
 
 ```mermaid
 graph TD
@@ -67,11 +63,9 @@ U[User Input] --> Q[Query Embedding]
 Q --> S[Qdrant Search]
 S --> R[Top-k Matching Chunks]
 R --> F[UI Display with Metadata]
-```
 
----
 
-### 🧱 Components & Stack
+🧱 Components & Stack
 
 | Layer             | Tool/Service              | Offline Ready |
 | ----------------- | ------------------------- | ------------- |
@@ -82,9 +76,8 @@ R --> F[UI Display with Metadata]
 | Hosting           | Local Machine / LAN       | ✅             |
 | Optional Scale-up | FastAPI + Docker          | ✅             |
 
----
 
-### 📈 Future Production Enhancements
+📈 Future Production Enhancements
 
 | Feature                | Benefit                                     |
 | ---------------------- | ------------------------------------------- |
@@ -95,5 +88,4 @@ R --> F[UI Display with Metadata]
 | Logging/Analytics      | Monitor popular queries                     |
 | Role-based Access      | Secure internal use                         |
 
----
 
