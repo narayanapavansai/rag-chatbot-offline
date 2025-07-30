@@ -1,0 +1,17 @@
+
+---
+
+## ✅ Final Steps: Upload to GitHub
+
+1. Go to [https://github.com/new](https://github.com/new)
+2. Create a repo: `rag-chatbot-offline`
+3. Locally run:
+
+```bash
+cd C:\rag_chatbot
+git init
+git add .
+git commit -m "Initial commit - Offline RAG Chatbot"
+git remote add origin https://github.com/yourusername/rag-chatbot-offline.git
+git branch -M main
+git push -u origin main
