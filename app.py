@@ -1,59 +1,62 @@
-import os
-import pdfplumber
-import docx
-import uuid
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import Distance
+import os
 
 # Constants
-DOC_FOLDER = "data"
 COLLECTION_NAME = "offline_docs"
+EMBED_DIM = 384
 
 # Load model and Qdrant
+st.set_page_config(page_title="Offline RAG Chatbot", page_icon="🤖", layout="wide")
+st.markdown("""
+    <style>
+        .main {
+            background-color: #f9f9f9;
+            padding: 2rem;
+        }
+        .stTextInput > div > div > input {
+            background-color: #fffbe6;
+            border: 1px solid #f0ad4e;
+            color: black !important;
+        }
+        .stButton button {
+            background-color: #4CAF50;
+            color: black;
+            font-weight: bold;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("🤖 Document-based Chatbot (Offline)")
+st.caption("Ask questions from your local PDF & DOCX documents — powered by Qdrant & Transformers ✨")
+
 model = SentenceTransformer("all-MiniLM-L6-v2")
 client = QdrantClient(host="localhost", port=6333)
 
-# Create collection if not exists
+# Check if collection exists
 if not client.collection_exists(COLLECTION_NAME):
-    client.create_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config=VectorParams(size=384, distance=Distance.COSINE)
-    )
+    st.error("⚠️ Collection does not exist. Run `rag_chatbot.py` first to index documents.")
+    st.stop()
 
-def extract_text(file_path):
-    if file_path.endswith(".pdf"):
-        with pdfplumber.open(file_path) as pdf:
-            return "\n".join([page.extract_text() or "" for page in pdf.pages])
-    elif file_path.endswith(".docx"):
-        doc = docx.Document(file_path)
-        return "\n".join([p.text for p in doc.paragraphs])
-    return ""
+# Input box
+query = st.text_input("🔍 Ask a question about your documents:", placeholder="e.g. What does the Techline IO manual explain?")
 
-def index_documents():
-    for fname in os.listdir(DOC_FOLDER):
-        full_path = os.path.join(DOC_FOLDER, fname)
-        text = extract_text(full_path)
-        chunks = [text[i:i+500] for i in range(0, len(text), 500)]
-        vectors = model.encode(chunks).tolist()
-        payloads = [{"text": chunk, "source": fname} for chunk in chunks]
-        points = [PointStruct(id=str(uuid.uuid4()), vector=v, payload=p) for v, p in zip(vectors, payloads)]
-        client.upsert(collection_name=COLLECTION_NAME, points=points)
-
-# Index on first run
-if not client.count(COLLECTION_NAME).count:
-    index_documents()
-
-# Streamlit UI
-st.set_page_config(page_title="📚 Offline RAG Chatbot")
-st.title("📄 Document-based Chatbot (Offline)")
-query = st.text_input("🔍 Ask a question about your documents:")
-
+# Search
 if query:
     q_vector = model.encode([query])[0].tolist()
     results = client.search(collection_name=COLLECTION_NAME, query_vector=q_vector, limit=3)
-    for r in results:
-        st.markdown(f"**📂 Source:** `{r.payload['source']}`")
-        st.write(r.payload["text"])
-        st.markdown("---")
+
+    st.markdown("""<hr style='margin-top:1rem;margin-bottom:1rem'>""", unsafe_allow_html=True)
+
+    if not results:
+        st.warning("❌ Not found")
+    else:
+        for r in results:
+            payload = r.payload
+            with st.container():
+                st.markdown(f"**📁 Source:** `{payload.get('source', '-')}`")
+                st.markdown(f"**📄 Page:** `{payload.get('page', '-')}` | **🧩 Chunk ID:** `{payload.get('chunk_id', '-')}`")
+                st.success(payload.get("text", ""))
+                st.markdown("""<hr style='border:0.5px solid #ddd'>""", unsafe_allow_html=True)
